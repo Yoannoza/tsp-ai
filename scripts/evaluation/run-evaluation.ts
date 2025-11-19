@@ -18,7 +18,7 @@ async function main() {
   };
 
   const datasetName = getArg('--dataset', 'esn_qa_dataset')!;
-  const modelName = getArg('--model', 'gemini-2.5-flash-lite')!;
+  const modelName = getArg('--model', 'grok-beta')!;
   const maxSamplesStr = getArg('--max-samples');
   const outputPath = getArg('--output');
 
@@ -34,7 +34,7 @@ async function main() {
     model_name: modelName,
     gemini_config: {
       model: modelName,
-      apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!,
+      apiKey: process.env.XAI_API_KEY!,
       temperature: 0.1
     },
     metrics_to_run: ['correctness', 'context_precision', 'answer_relevance', 'faithfulness'],

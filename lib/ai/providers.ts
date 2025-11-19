@@ -1,4 +1,4 @@
-import { google } from "@ai-sdk/google";
+import { xai } from "@ai-sdk/xai";
 import {
   customProvider,
   extractReasoningMiddleware,
@@ -25,14 +25,12 @@ export const myProvider = isTestEnvironment
     })()
   : customProvider({
       languageModels: {
-        // Utilisation de DeepSeek pour les chat models
-        "chat-model": google("gemini-2.5-flash"),
+        "chat-model": xai("grok-beta"),
         "chat-model-reasoning": wrapLanguageModel({
-          model: google("gemini-2.5-flash"),
+          model: xai("grok-beta"),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         }),
-        // Gemini pour les autres modèles
-        "title-model": google("gemini-2.5-flash-lite"),
-        "artifact-model": google("gemini-2.5-flash"),
+        "title-model": xai("grok-beta"),
+        "artifact-model": xai("grok-beta"),
       },
     });

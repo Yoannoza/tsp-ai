@@ -3,7 +3,7 @@
  * Uses Google Generative AI SDK to evaluate responses
  */
 
-import { google } from '@ai-sdk/google';
+import { xai } from '@ai-sdk/xai';
 import { generateText } from 'ai';
 import type { GeminiJudgeConfig, JudgeResponse, PromptTemplate } from '../types';
 import { fillTemplate } from '../prompts/templates';
@@ -13,7 +13,7 @@ export class GeminiJudge {
   
   constructor(config: GeminiJudgeConfig) {
     this.config = {
-      model: config.model || 'gemini-2.5-flash-lite',
+      model: config.model || 'grok-beta',
       apiKey: config.apiKey,
       temperature: config.temperature ?? 0.1, // Low temperature for consistent scoring
       maxTokens: config.maxTokens ?? 2048,
@@ -96,7 +96,7 @@ export class GeminiJudge {
    * Generate text using Gemini via AI SDK
    */
   private async generateWithGemini(prompt: string): Promise<string> {
-    const model = google(this.config.model);
+    const model = xai(this.config.model);
 
     const { text } = await generateText({
       model,
@@ -158,11 +158,11 @@ export class GeminiJudge {
 export function createGeminiJudge(
   config?: Partial<GeminiJudgeConfig>
 ): GeminiJudge {
-  const apiKey = config?.apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const apiKey = config?.apiKey || process.env.XAI_API_KEY;
   
   if (!apiKey) {
     throw new Error(
-      'GOOGLE_GENERATIVE_AI_API_KEY is required. Set it in your .env.local file.'
+      'XAI_API_KEY is required. Set it in your .env.local file.'
     );
   }
 

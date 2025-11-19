@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       model_name,
       gemini_config: {
         model: model_name,
-        apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!,
+        apiKey: process.env.XAI_API_KEY!,
         temperature: 0.1
       },
       metrics_to_run: metrics,

@@ -9,7 +9,6 @@ import {
   getMessageById,
   updateChatVisiblityById,
 } from "@/lib/db/queries";
-import { getVercelTelemetry } from "@/lib/observability/telemetry";
 
 export async function saveChatModelAsCookie(model: string) {
   const cookieStore = await cookies();
@@ -29,12 +28,6 @@ export async function generateTitleFromUserMessage({
     - the title should be a summary of the user's message
     - do not use quotes or colons`,
     prompt: JSON.stringify(message),
-    experimental_telemetry: getVercelTelemetry({
-      functionId: "generate-chat-title",
-      metadata: {
-        messageType: message.role,
-      },
-    }),
   });
 
   return title;

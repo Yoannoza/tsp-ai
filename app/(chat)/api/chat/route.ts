@@ -11,7 +11,6 @@ import {
   streamText,
 } from "ai";
 import { unstable_cache as cache } from "next/cache";
-import { getVercelTelemetry, logAIEvent } from "@/lib/observability/telemetry";
 import type { ModelCatalog } from "tokenlens/core";
 import { fetchModels } from "tokenlens/fetch";
 import { getUsage } from "tokenlens/helpers";
@@ -38,6 +37,7 @@ import type { AppUsage } from "@/lib/usage";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
 export const maxDuration = 60;
 
@@ -171,30 +171,49 @@ export async function POST(request: Request) {
       .map((part) => part.text)
       .join(" ");
 
-    logAIEvent("chat-start", {
-      metadata: {
-        chatId: id,
-        model: selectedChatModel,
-        messageCount: uiMessages.length,
-      },
-    });
-
     const stream = createUIMessageStream({
       execute: async ({ writer: dataStream }) => {
         const model = new ChatXAI({
-          model: "grok-beta",
+          model: "grok-4-fast-reasoning",
           temperature: 0,
           apiKey: process.env.XAI_API_KEY,
-        }).bindTools([solveTSP]);
+        });
+
+        const agent = createReactAgent({
+          llm: model,
+          tools: [solveTSP],
+        });
 
         const messages = [
           new SystemMessage(systemPrompt({ selectedChatModel, requestHints })),
           ...convertToLangChainMessages(uiMessages),
         ];
 
-        const result = await model.stream(messages);
+        const eventStream = await agent.streamEvents(
+          { messages },
+          { version: "v2" }
+        );
 
-        dataStream.merge(toUIMessageStream(result));
+        const chunkStream = (async function* () {
+          for await (const event of eventStream) {
+            if (event.event === "on_chat_model_stream" && event.data.chunk) {
+              yield event.data.chunk;
+            }
+          }
+        })();
+
+        const readableStream = new ReadableStream({
+          async pull(controller) {
+            const { value, done } = await chunkStream.next();
+            if (done) {
+              controller.close();
+            } else {
+              controller.enqueue(value);
+            }
+          },
+        });
+
+        dataStream.merge(toUIMessageStream(readableStream));
       },
       generateId: generateUUID,
       onFinish: async ({ messages }) => {
