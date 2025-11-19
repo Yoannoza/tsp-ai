@@ -254,7 +254,6 @@ export async function POST(request: Request) {
     //   );
     // }
 
-    // LangfuseExporter handles automatic flushing via @vercel/otel
     return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
   } catch (error) {
     const vercelId = request.headers.get("x-vercel-id");

@@ -30,7 +30,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { Book } from "lucide-react";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -118,25 +117,6 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarContent>
         <SidebarFooter>
           <div className="flex flex-col gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="w-full justify-start gap-2"
-                  onClick={() => {
-                    setOpenMobile(false);
-                    router.push("/docs");
-                  }}
-                  type="button"
-                  variant="ghost"
-                >
-                  <Book className="h-4 w-4" />
-                  <span>Documentation</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent align="start">
-                Voir la documentation
-              </TooltipContent>
-            </Tooltip>
             {user && <SidebarUserNav user={user} />}
           </div>
         </SidebarFooter>

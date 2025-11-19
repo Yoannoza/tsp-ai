@@ -252,10 +252,10 @@ npx tsx lib/ai/test-chunking.ts
 - [ ] Support des tableaux et graphiques
 - [ ] Détection des annexes et glossaires
 - [ ] Chunking multi-niveaux (section → sous-section → paragraphe)
-- [ ] Export des métadonnées vers Langfuse pour observabilité
-- [ ] Intégration avec le système d'expérimentation
+ - [ ] Export des métadonnées pour observabilité
+ - [ ] Intégration avec le système d'expérimentation
 
 ## Références
 
 - Analyse complète du chunking : Voir le fichier source de l'analyse fournie
-- Documentation Langfuse Experiments : `/datasets/experiments/README.md`
+- Documentation Experiments : `/datasets/experiments/README.md`

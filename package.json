@@ -16,12 +16,7 @@
     "db:check": "drizzle-kit check",
     "db:up": "drizzle-kit up",
     "kb:init": "npx tsx scripts/init-knowledge-base.ts",
-    "generate-answers": "npx tsx scripts/evaluation/generate-answers.ts",
-    "eval": "npx tsx scripts/evaluation/run-evaluation.ts",
-    "test": "export PLAYWRIGHT=True && pnpm exec playwright test",
-    "docs:serve": "mkdocs serve",
-    "docs:build": "mkdocs build",
-    "docs:deploy": "mkdocs gh-deploy"
+    "test": "export PLAYWRIGHT=True && pnpm exec playwright test"
   },
   "dependencies": {
     "@ai-sdk/gateway": "^1.0.15",
