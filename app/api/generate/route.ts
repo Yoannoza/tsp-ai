@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     };
 
     const model = new ChatXAI({
-      model: "grok-beta",
+      model: "grok-4-fast-reasoning",
       temperature: 0,
       apiKey: process.env.XAI_API_KEY,
     }).bindTools([solveTSP]);

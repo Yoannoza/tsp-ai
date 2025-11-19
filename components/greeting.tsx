@@ -17,21 +17,21 @@ export const Greeting = () => {
       </motion.div>
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="text-xl text-zinc-500 md:text-2xl"
+        className="text-xl text-muted-foreground md:text-2xl"
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.6 }}
       >
-        Your specialized assistant for TSP optimization
+        Optimisez vos itinéraires de voyage au Bénin
       </motion.div>
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="text-sm text-zinc-400 mt-3"
+        className="text-sm text-muted-foreground mt-3"
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.7 }}
       >
-        Ask questions about algorithms, heuristics, and implementation details.
+        Trouvez le meilleur parcours pour visiter plusieurs villes et sites touristiques.
       </motion.div>
     </div>
   );
