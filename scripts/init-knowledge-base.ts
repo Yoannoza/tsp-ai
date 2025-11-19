@@ -84,8 +84,6 @@ async function initializeKnowledgeBase() {
 
   console.log(`📚 ${files.length} fichiers Markdown trouvés\n`);
 
-  let totalChunks = 0;
-
   for (const file of files) {
     const filepath = path.join(docsPath, file);
     const content = fs.readFileSync(filepath, "utf-8");
@@ -114,7 +112,6 @@ async function initializeKnowledgeBase() {
   console.log(`\n🎉 Initialisation terminée!`);
   console.log(`📊 Résumé:`);
   console.log(`   - ${files.length} documents traités`);
-  console.log(`   - ${totalChunks} chunks d'embeddings créés`);
 
   process.exit(0);
 }

@@ -1,8 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { embeddings, knowledgeBase } from "@/lib/db/schema";
-import { generateEmbeddings } from "@/lib/ai/embedding";
+import { knowledgeBase } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/app/(auth)/auth";
 import { ChatSDKError } from "../errors";
@@ -86,27 +85,11 @@ export async function uploadDocument(formData: FormData) {
       })
       .returning();
 
-    // Générer et sauvegarder les embeddings
-    console.log(`Génération des embeddings pour ${file.name}...`);
-    const embeddingsList = await generateEmbeddings(content);
-
-    await db.insert(embeddings).values(
-      embeddingsList.map((embedding) => ({
-        knowledgeBaseId: knowledge.id,
-        content: embedding.content,
-        embedding: embedding.embedding,
-      }))
-    );
-
-    console.log(
-      `✅ ${embeddingsList.length} embeddings créés pour ${file.name}`
-    );
-
     revalidatePath("/admin/knowledge-base");
 
     return {
       success: true,
-      message: `Document "${file.name}" ajouté avec succès (${embeddingsList.length} chunks créés)`,
+      message: `Document "${file.name}" ajouté avec succès`,
       documentId: knowledge.id,
     };
   } catch (error) {
