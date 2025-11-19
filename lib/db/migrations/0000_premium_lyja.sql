@@ -17,14 +17,6 @@ CREATE TABLE IF NOT EXISTS "Document" (
 	CONSTRAINT "Document_id_createdAt_pk" PRIMARY KEY("id","createdAt")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "Embeddings" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"knowledgeBaseId" uuid NOT NULL,
-	"content" text NOT NULL,
-	"embedding" vector(768) NOT NULL,
-	"createdAt" timestamp NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "KnowledgeBase" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"filename" text NOT NULL,
@@ -105,12 +97,6 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "Embeddings" ADD CONSTRAINT "Embeddings_knowledgeBaseId_KnowledgeBase_id_fk" FOREIGN KEY ("knowledgeBaseId") REFERENCES "public"."KnowledgeBase"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "KnowledgeBase" ADD CONSTRAINT "KnowledgeBase_uploadedBy_User_id_fk" FOREIGN KEY ("uploadedBy") REFERENCES "public"."User"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -169,5 +155,3 @@ DO $$ BEGIN
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
---> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "embeddingIndex" ON "Embeddings" USING hnsw ("embedding" vector_cosine_ops);
