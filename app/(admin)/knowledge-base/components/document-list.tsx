@@ -17,7 +17,6 @@ import {
 import { toast } from "@/components/toast";
 import {
   deleteKnowledgeBase,
-  regenerateEmbeddings,
 } from "@/lib/actions/knowledge-base";
 import { FileIcon, TrashIcon, LoaderIcon } from "@/components/icons";
 
@@ -36,7 +35,6 @@ export function DocumentList({
 }) {
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [regenerateId, setRegenerateId] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
@@ -52,21 +50,6 @@ export function DocumentList({
 
     setLoading(null);
     setDeleteId(null);
-  };
-
-  const handleRegenerate = async (id: string) => {
-    setLoading(id);
-    const result = await regenerateEmbeddings(id);
-
-    if (result.success) {
-      toast({ type: "success", description: result.message || "Embeddings régénérés" });
-      router.refresh();
-    } else {
-      toast({ type: "error", description: result.error || "Erreur lors de la régénération" });
-    }
-
-    setLoading(null);
-    setRegenerateId(null);
   };
 
   if (documents.length === 0) {
@@ -97,14 +80,6 @@ export function DocumentList({
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button
-                  disabled={loading === doc.id}
-                  onClick={() => setRegenerateId(doc.id)}
-                  size="sm"
-                  variant="outline"
-                >
-                  <LoaderIcon size={16} />
-                </Button>
                 <Button
                   disabled={loading === doc.id}
                   onClick={() => setDeleteId(doc.id)}
@@ -144,7 +119,7 @@ export function DocumentList({
             <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
             <AlertDialogDescription>
               Êtes-vous sûr de vouloir supprimer ce document ? Cette action est
-              irréversible et supprimera également tous les embeddings associés.
+              irréversible.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -153,30 +128,6 @@ export function DocumentList({
               onClick={() => deleteId && handleDelete(deleteId)}
             >
               Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Regenerate Dialog */}
-      <AlertDialog
-        onOpenChange={(open) => !open && setRegenerateId(null)}
-        open={!!regenerateId}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Régénérer les embeddings</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette opération va supprimer tous les embeddings existants et en
-              créer de nouveaux. Cela peut prendre quelques instants.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => regenerateId && handleRegenerate(regenerateId)}
-            >
-              Régénérer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

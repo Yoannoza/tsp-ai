@@ -54,7 +54,7 @@ export function AnalyticsDashboard({
             <div className="font-bold text-2xl">
               {analytics.avgExecutionTime}ms
             </div>
-            <p className="text-muted-foreground text-xs">Recherche vectorielle</p>
+            <p className="text-muted-foreground text-xs">Temps de réponse</p>
           </CardContent>
         </Card>
 

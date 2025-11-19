@@ -4,8 +4,7 @@ import * as path from "node:path";
 import * as readline from "node:readline/promises";
 import { eq } from "drizzle-orm";
 import { db } from "../lib/db-scripts";
-import { embeddings, knowledgeBase, user } from "../lib/db/schema";
-import { generateEmbeddings } from "../lib/ai/embedding";
+import { knowledgeBase, user } from "../lib/db/schema";
 
 config({ path: ".env.local" });
 
@@ -106,23 +105,7 @@ async function initializeKnowledgeBase() {
         })
         .returning();
 
-      // Générer les embeddings
-      console.log(`   🔄 Génération des embeddings...`);
-      const embeddingsList = await generateEmbeddings(content);
-
-      // Sauvegarder les embeddings
-      await db.insert(embeddings).values(
-        embeddingsList.map((embedding) => ({
-          knowledgeBaseId: knowledge.id,
-          content: embedding.content,
-          embedding: embedding.embedding,
-        }))
-      );
-
-      totalChunks += embeddingsList.length;
-      console.log(
-        `   ✅ ${embeddingsList.length} chunks créés (Total: ${totalChunks})\n`
-      );
+      console.log(`   ✅ Document ajouté à la base de connaissances\n`);
     } catch (error) {
       console.error(`   ❌ Erreur: ${error}\n`);
     }

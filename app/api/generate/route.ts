@@ -1,14 +1,8 @@
-import {
-  convertToModelMessages,
-  smoothStream,
-  stepCountIs,
-  streamText,
-} from "ai";
-import { myProvider } from "@/lib/ai/providers";
+import { ChatXAI } from "@langchain/xai";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
-import { retrieveKnowledge } from "@/lib/ai/tools/retrieve-knowledge";
+import { solveTSP } from "@/lib/ai/tools/solve-tsp";
 import type { ChatModel } from "@/lib/ai/models";
-import type { ChatMessage } from "@/lib/types";
 
 /**
  * POST /api/generate
@@ -38,18 +32,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build the user message in the same format as the chat API
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      parts: [
-        {
-          type: 'text',
-          text: message,
-        },
-      ],
-    };
-
     const requestHints: RequestHints = {
       latitude: undefined,
       longitude: undefined,
@@ -57,29 +39,23 @@ export async function POST(request: Request) {
       country: undefined,
     };
 
-    // Use streamText with the EXACT same configuration as /api/chat
-    const result = await streamText({
-      model: myProvider.languageModel(chatModel),
-      system: systemPrompt({ selectedChatModel: chatModel, requestHints }),
-      messages: convertToModelMessages([userMessage]),
-      stopWhen: stepCountIs(500), // Same as chat route
-      experimental_activeTools: ["retrieveKnowledge"], // Same as chat route
-      experimental_transform: smoothStream({ chunking: "word" }), // Same as chat route
-      tools: {
-        retrieveKnowledge, // ✅ RAG enabled like in production
-      },
-    });
+    const model = new ChatXAI({
+      model: "grok-beta",
+      temperature: 0,
+      apiKey: process.env.XAI_API_KEY,
+    }).bindTools([solveTSP]);
 
-    // Collect the full response from the stream
-    let fullResponse = '';
-    for await (const chunk of result.textStream) {
-      fullResponse += chunk;
-    }
+    const messages = [
+      new SystemMessage(systemPrompt({ selectedChatModel: chatModel, requestHints })),
+      new HumanMessage(message),
+    ];
+
+    const result = await model.invoke(messages);
 
     // Return as JSON
     return Response.json({
       success: true,
-      answer: fullResponse.trim(),
+      answer: result.content,
       model: chatModel,
     });
 

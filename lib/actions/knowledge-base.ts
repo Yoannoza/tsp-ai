@@ -1,8 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { embeddings, knowledgeBase } from "@/lib/db/schema";
-import { generateEmbeddings } from "@/lib/ai/embedding";
+import { knowledgeBase } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/app/(auth)/auth";
@@ -39,22 +38,11 @@ export async function createKnowledgeBase(input: {
       })
       .returning();
 
-    // Générer et sauvegarder les embeddings
-    const embeddingsList = await generateEmbeddings(content);
-
-    await db.insert(embeddings).values(
-      embeddingsList.map((embedding) => ({
-        knowledgeBaseId: knowledge.id,
-        content: embedding.content,
-        embedding: embedding.embedding,
-      }))
-    );
-
     revalidatePath("/knowledge-base");
 
     return {
       success: true,
-      message: `Document "${filename}" ajouté avec succès (${embeddingsList.length} chunks créés)`,
+      message: `Document "${filename}" ajouté avec succès`,
       id: knowledge.id,
     };
   } catch (error) {
@@ -91,7 +79,7 @@ export async function deleteKnowledgeBase(id: string) {
       };
     }
 
-    // Supprimer le document (les embeddings seront supprimés en cascade)
+    // Supprimer le document
     await db.delete(knowledgeBase).where(eq(knowledgeBase.id, id));
 
     revalidatePath("/knowledge-base");
@@ -168,58 +156,3 @@ export async function getAllKnowledgeBase(): Promise<{
   }
 }
 
-/**
- * Recharge les embeddings d'un document existant
- */
-export async function regenerateEmbeddings(id: string) {
-  try {
-    const session = await auth();
-
-    if (!session?.user) {
-      throw new ChatSDKError("unauthorized:chat");
-    }
-
-    // Récupérer le document
-    const [knowledge] = await db
-      .select()
-      .from(knowledgeBase)
-      .where(eq(knowledgeBase.id, id));
-
-    if (!knowledge) {
-      return {
-        success: false,
-        error: "Document introuvable",
-      };
-    }
-
-    // Supprimer les anciens embeddings
-    await db.delete(embeddings).where(eq(embeddings.knowledgeBaseId, id));
-
-    // Générer et sauvegarder les nouveaux embeddings
-    const embeddingsList = await generateEmbeddings(knowledge.content);
-
-    await db.insert(embeddings).values(
-      embeddingsList.map((embedding) => ({
-        knowledgeBaseId: id,
-        content: embedding.content,
-        embedding: embedding.embedding,
-      }))
-    );
-
-    revalidatePath("/knowledge-base");
-
-    return {
-      success: true,
-      message: `Embeddings régénérés pour "${knowledge.filename}" (${embeddingsList.length} chunks)`,
-    };
-  } catch (error) {
-    console.error("Error regenerating embeddings:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de la régénération des embeddings",
-    };
-  }
-}

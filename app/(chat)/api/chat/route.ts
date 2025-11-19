@@ -21,7 +21,7 @@ import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import type { ChatModel } from "@/lib/ai/models";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { myProvider } from "@/lib/ai/providers";
-import { retrieveKnowledge } from "@/lib/ai/tools/retrieve-knowledge";
+import { solveTSP } from "@/lib/ai/tools/solve-tsp";
 import {
   createStreamId,
   deleteChatById,
@@ -182,10 +182,10 @@ export async function POST(request: Request) {
     const stream = createUIMessageStream({
       execute: async ({ writer: dataStream }) => {
         const model = new ChatXAI({
-          model: "grok-4-fast-reasoning",
+          model: "grok-beta",
           temperature: 0,
           apiKey: process.env.XAI_API_KEY,
-        });
+        }).bindTools([solveTSP]);
 
         const messages = [
           new SystemMessage(systemPrompt({ selectedChatModel, requestHints })),

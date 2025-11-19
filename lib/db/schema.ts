@@ -11,7 +11,6 @@ import {
   timestamp,
   uuid,
   varchar,
-  vector,
 } from "drizzle-orm/pg-core";
 import type { AppUsage } from "../usage";
 import { generateUUID } from "../utils";
@@ -188,35 +187,3 @@ export const knowledgeBase = pgTable("KnowledgeBase", {
 });
 
 export type KnowledgeBase = InferSelectModel<typeof knowledgeBase>;
-
-export const embeddings = pgTable(
-  "Embeddings",
-  {
-    id: uuid("id").primaryKey().notNull().defaultRandom(),
-    knowledgeBaseId: uuid("knowledgeBaseId")
-      .notNull()
-      .references(() => knowledgeBase.id, { onDelete: "cascade" }),
-    content: text("content").notNull(),
-    embedding: vector("embedding", { dimensions: 768 }).notNull(),
-    metadata: jsonb("metadata").$type<{
-      documentType?: string;
-      axe?: string;
-      niveau?: string;
-      chapitre?: string;
-      section?: string;
-      article?: string;
-      entites?: string[];
-      concepts?: string[];
-      page?: number;
-    }>(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-  },
-  (table) => ({
-    embeddingIndex: index("embeddingIndex").using(
-      "hnsw",
-      table.embedding.op("vector_cosine_ops")
-    ),
-  })
-);
-
-export type Embedding = InferSelectModel<typeof embeddings>;

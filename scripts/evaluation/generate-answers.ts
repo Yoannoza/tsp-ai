@@ -199,8 +199,8 @@ async function generateAnswersForDataset(
 
   console.log('\n🚀 Starting answer generation...');
   console.log('🤖 Using /api/generate endpoint (same config as chat)');
-  console.log('✅ RAG (retrieveKnowledge) enabled');
-  console.log('� API URL:', process.env.GENERATE_API_URL || 'http://localhost:3000/api/generate');
+  console.log('✅ TSP Solver enabled');
+  console.log(' API URL:', process.env.GENERATE_API_URL || 'http://localhost:3000/api/generate');
   console.log('⚠️  Make sure dev server is running: pnpm dev\n');
 
   // Process each row
